@@ -1,0 +1,20 @@
+# Obsidian — เก็บ vault แต่ไม่เก็บไฟล์สถานะเฉพาะเครื่อง
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python (จากตอน extract PDF)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor
+.vscode/
+*.swp
