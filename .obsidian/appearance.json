@@ -1,1 +1,8 @@
-{}
+{
+  "accentColor": "#3ecf8e",
+  "baseFontSize": 17,
+  "theme": "obsidian",
+  "cssTheme": "",
+  "translucency": false,
+  "showViewHeader": true
+}

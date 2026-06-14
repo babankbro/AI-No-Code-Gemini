@@ -1,0 +1,30 @@
+{
+  "collapse-filter": true,
+  "search": "",
+  "showTags": true,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    { "query": "path:\"01-ภาพรวม\"", "color": { "a": 1, "rgb": 11031031 } },
+    { "query": "path:\"02-โมดูล\"", "color": { "a": 1, "rgb": 4360181 } },
+    { "query": "path:\"03-เดโม\"", "color": { "a": 1, "rgb": 16094526 } },
+    { "query": "path:\"04-อ้างอิง\"", "color": { "a": 1, "rgb": 10133670 } },
+    { "query": "path:\"05-สไลด์\"", "color": { "a": 1, "rgb": 2999487 } },
+    { "query": "tag:#new", "color": { "a": 1, "rgb": 2278494 } },
+    { "query": "file:00-Home", "color": { "a": 1, "rgb": 16107288 } }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": -0.5,
+  "nodeSizeMultiplier": 1.35,
+  "lineSizeMultiplier": 1.1,
+  "collapse-forces": false,
+  "centerStrength": 0.52,
+  "repelStrength": 12,
+  "linkStrength": 1,
+  "linkDistance": 230,
+  "scale": 1,
+  "close": false
+}

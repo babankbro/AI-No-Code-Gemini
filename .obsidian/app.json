@@ -1,1 +1,10 @@
-{}
+{
+  "readableLineLength": true,
+  "showLineNumber": false,
+  "foldHeading": true,
+  "foldIndent": true,
+  "showInlineTitle": true,
+  "showFrontmatter": true,
+  "tabSize": 2,
+  "attachmentFolderPath": "99-แนบ"
+}
