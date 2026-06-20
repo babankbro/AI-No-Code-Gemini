@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ร้านกาแฟคั่วบดระดับพรีเมียม สัมผัสความหอมละมุนในบรรยากาศอบอุ่น">
+    <title>Brew & Brown | Premium Coffee Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo">Brew & Brown</a>
+            <a href="#order" class="btn btn-outline">สั่งซื้อเลย</a>
+        </div>
+    </nav>
+
+    <header class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <h1>สัมผัสความเข้มข้น<br>ในทุกหยด</h1>
+            <p>ดื่มด่ำกับกาแฟคั่วบดระดับพรีเมียม ในบรรยากาศสุดอบอุ่น<br>ที่เราคัดสรรเมล็ดกาแฟที่ดีที่สุดเพื่อคุณ</p>
+            <a href="#menu" class="btn btn-primary">ดูเมนูของเรา</a>
+        </div>
+    </header>
+
+    <section class="menu-section" id="menu">
+        <div class="container">
+            <div class="section-header">
+                <h2>เมนูแนะนำ</h2>
+                <p>คัดสรรเมนูสุดพิเศษเพื่อช่วงเวลาดีๆ ของคุณ</p>
+            </div>
+            
+            <div class="menu-grid">
+                <!-- Menu Item 1 -->
+                <div class="menu-card">
+                    <div class="card-image-wrapper">
+                        <img src="assets/menu_cappuccino.png" alt="Cappuccino" class="menu-image">
+                        <div class="price-tag">฿95</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>คาปูชิโน่ร้อน</h3>
+                        <p>เอสเพรสโซ่เข้มข้นผสมผสานกับนมร้อนและฟองนมนุ่มละมุน</p>
+                        <button class="btn btn-small btn-primary order-btn">เพิ่มลงตะกร้า</button>
+                    </div>
+                </div>
+
+                <!-- Menu Item 2 -->
+                <div class="menu-card">
+                    <div class="card-image-wrapper">
+                        <img src="assets/menu_iced_macchiato.png" alt="Iced Caramel Macchiato" class="menu-image">
+                        <div class="price-tag">฿120</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>ไอซ์ คาราเมล มัคคิอาโต้</h3>
+                        <p>ความหอมหวานของคาราเมลและวานิลลา ตัดกับเอสเพรสโซ่ช็อตอย่างลงตัว</p>
+                        <button class="btn btn-small btn-primary order-btn">เพิ่มลงตะกร้า</button>
+                    </div>
+                </div>
+
+                <!-- Menu Item 3 -->
+                <div class="menu-card">
+                    <div class="card-image-wrapper">
+                        <img src="assets/menu_croissant.png" alt="Almond Croissant" class="menu-image">
+                        <div class="price-tag">฿85</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>อัลมอนด์ครัวซองต์</h3>
+                        <p>ครัวซองต์อบสดใหม่ กรอบนอกนุ่มใน หอมเนยแท้และอัลมอนด์สไลด์</p>
+                        <button class="btn btn-small btn-primary order-btn">เพิ่มลงตะกร้า</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h2>Brew & Brown</h2>
+                    <p>เติมเต็มทุกวันของคุณด้วยกาแฟแก้วโปรด</p>
+                </div>
+                <div class="footer-cta" id="order">
+                    <h3>พร้อมสั่งหรือยัง?</h3>
+                    <p>บริการจัดส่งถึงที่ภายใน 30 นาที</p>
+                    <button class="btn btn-primary btn-large">สั่งซื้อผ่าน LINE MAN</button>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Brew & Brown. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Micro-animations for buttons
+        document.querySelectorAll('.order-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const originalText = this.innerText;
+                this.innerText = 'เพิ่มแล้ว!';
+                this.classList.add('success');
+                setTimeout(() => {
+                    this.innerText = originalText;
+                    this.classList.remove('success');
+                }, 2000);
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

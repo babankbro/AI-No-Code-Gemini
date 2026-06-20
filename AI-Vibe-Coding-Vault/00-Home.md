@@ -44,6 +44,9 @@ tags: [moc, home]
 - [[พรอมต์ grill-me เก็บ requirement]]
 - [[Requirement Sheet เทมเพลต]]
 
+## 🧑‍🏫 ชุดอบรม
+- [[00-อบรม AI Vibe Coding 2 วัน]]
+
 ## 📖 อ้างอิง
 - [[อภิธานศัพท์]]
 - [[สิ่งที่จงใจไม่สอน]]

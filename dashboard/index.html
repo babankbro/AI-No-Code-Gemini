@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลการสมัครเรียน มหาวิทยาลัยอุบลราชธานี</title>
+    <!-- Tailwind CSS (CDN for simple single-page app) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse removed as we use mockup data -->
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Prompt', sans-serif; 
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(135deg, #4f46e5, #ec4899, #f59e0b);
+        }
+        
+        /* Loading animation */
+        .loader {
+            border-top-color: #ec4899;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 text-slate-800 relative overflow-x-hidden">
+
+    <!-- Decorative background elements -->
+    <div class="absolute top-0 left-0 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-8 left-20 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 relative z-10">
+        <!-- Header -->
+        <header class="text-center py-6 md:py-10">
+            <h1 class="text-3xl md:text-5xl font-bold gradient-text mb-4 drop-shadow-sm">ข้อมูลการสมัครเรียน มหาวิทยาลัยอุบลราชธานี</h1>
+            <p class="text-gray-600 text-lg font-medium">สรุปยอดผู้สมัครและผลการคัดเลือก (ข้อมูล Mockup)</p>
+        </header>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="flex justify-center items-center py-20">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16 mb-4"></div>
+            <p class="ml-4 text-xl font-medium text-gray-500">กำลังโหลดข้อมูล...</p>
+        </div>
+
+        <!-- Dashboard Content (Hidden until loaded) -->
+        <div id="dashboard" class="hidden space-y-8">
+            
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="kpi-container">
+                <!-- Rendered dynamically by JS -->
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Chart 1: Applicants over years -->
+                <div class="glass p-5 md:p-6 rounded-2xl lg:col-span-2 hover:-translate-y-1 transition-transform duration-300">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">แนวโน้มผู้สมัครย้อนหลัง</h2>
+                    </div>
+                    <div class="relative h-72">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Chart 2: Pass vs Fail Overall -->
+                <div class="glass p-5 md:p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">สัดส่วนผลการคัดเลือก</h2>
+                    <div class="relative h-64 flex justify-center">
+                        <canvas id="ratioChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 3: Applicants by Faculty -->
+                <div class="glass p-5 md:p-6 rounded-2xl lg:col-span-3 hover:-translate-y-1 transition-transform duration-300">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">จำนวนผู้สมัครแยกตามคณะและประเภท</h2>
+                    <div class="relative h-80 md:h-96">
+                        <canvas id="facultyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="text-center pt-8 pb-4 text-sm text-gray-500">
+                <p>Dashboard สร้างด้วย HTML, Tailwind CSS และ Chart.js</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Set Chart.js global font
+        Chart.defaults.font.family = "'Prompt', sans-serif";
+        Chart.defaults.color = '#475569';
+
+        let charts = {};
+
+        // Mockup Data (จำลองข้อมูลแทนการดึงจาก Google Sheets)
+        const mockupData = [
+            { "ปีการศึกษา": 2564, "ชื่อคณะ": "วิศวกรรมศาสตร์", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 427, "จำนวนผู้ผ่าน": 78, "จำนวนผู้ไม่ผ่าน": 349 },
+            { "ปีการศึกษา": 2564, "ชื่อคณะ": "วิศวกรรมศาสตร์", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 112, "จำนวนผู้ผ่าน": 61, "จำนวนผู้ไม่ผ่าน": 51 },
+            { "ปีการศึกษา": 2564, "ชื่อคณะ": "วิทยาศาสตร์", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 225, "จำนวนผู้ผ่าน": 47, "จำนวนผู้ไม่ผ่าน": 178 },
+            { "ปีการศึกษา": 2564, "ชื่อคณะ": "วิทยาศาสตร์", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 171, "จำนวนผู้ผ่าน": 115, "จำนวนผู้ไม่ผ่าน": 56 },
+            { "ปีการศึกษา": 2565, "ชื่อคณะ": "วิศวกรรมศาสตร์", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 152, "จำนวนผู้ผ่าน": 27, "จำนวนผู้ไม่ผ่าน": 125 },
+            { "ปีการศึกษา": 2565, "ชื่อคณะ": "วิศวกรรมศาสตร์", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 294, "จำนวนผู้ผ่าน": 129, "จำนวนผู้ไม่ผ่าน": 165 },
+            { "ปีการศึกษา": 2565, "ชื่อคณะ": "วิทยาศาสตร์", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 283, "จำนวนผู้ผ่าน": 96, "จำนวนผู้ไม่ผ่าน": 187 },
+            { "ปีการศึกษา": 2565, "ชื่อคณะ": "วิทยาศาสตร์", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 276, "จำนวนผู้ผ่าน": 187, "จำนวนผู้ไม่ผ่าน": 89 },
+            { "ปีการศึกษา": 2566, "ชื่อคณะ": "เทคโนโลยีสารสนเทศ", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 411, "จำนวนผู้ผ่าน": 142, "จำนวนผู้ไม่ผ่าน": 269 },
+            { "ปีการศึกษา": 2566, "ชื่อคณะ": "เทคโนโลยีสารสนเทศ", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 187, "จำนวนผู้ผ่าน": 108, "จำนวนผู้ไม่ผ่าน": 79 },
+            { "ปีการศึกษา": 2566, "ชื่อคณะ": "มนุษยศาสตร์", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 473, "จำนวนผู้ผ่าน": 101, "จำนวนผู้ไม่ผ่าน": 372 },
+            { "ปีการศึกษา": 2566, "ชื่อคณะ": "มนุษยศาสตร์", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 183, "จำนวนผู้ผ่าน": 102, "จำนวนผู้ไม่ผ่าน": 81 },
+            { "ปีการศึกษา": 2567, "ชื่อคณะ": "สถาปัตยกรรมและการออกแบบ", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 360, "จำนวนผู้ผ่าน": 117, "จำนวนผู้ไม่ผ่าน": 243 },
+            { "ปีการศึกษา": 2567, "ชื่อคณะ": "สถาปัตยกรรมและการออกแบบ", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 146, "จำนวนผู้ผ่าน": 61, "จำนวนผู้ไม่ผ่าน": 85 },
+            { "ปีการศึกษา": 2567, "ชื่อคณะ": "ศึกษาศาสตร์", "ประเภทการสมัคร": "Admission", "จำนวนผู้สมัคร": 448, "จำนวนผู้ผ่าน": 121, "จำนวนผู้ไม่ผ่าน": 327 },
+            { "ปีการศึกษา": 2567, "ชื่อคณะ": "ศึกษาศาสตร์", "ประเภทการสมัคร": "Quota", "จำนวนผู้สมัคร": 405, "จำนวนผู้ผ่าน": 170, "จำนวนผู้ไม่ผ่าน": 235 }
+        ];
+
+        // จำลองเวลาโหลดข้อมูล 1 วินาที เพื่อให้เห็น Loading Animation
+        setTimeout(() => {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            processData(mockupData);
+        }, 1000);
+
+        function processData(data) {
+            let totalApplicants = 0;
+            let totalPassed = 0;
+            let totalFailed = 0;
+            
+            const yearlyData = {};
+            const facultyData = {};
+
+            data.forEach(row => {
+                if (!row['ปีการศึกษา'] || !row['ชื่อคณะ']) return;
+                
+                const applicants = parseInt(row['จำนวนผู้สมัคร']) || 0;
+                const passed = parseInt(row['จำนวนผู้ผ่าน']) || 0;
+                const failed = parseInt(row['จำนวนผู้ไม่ผ่าน']) || 0;
+
+                totalApplicants += applicants;
+                totalPassed += passed;
+                totalFailed += failed;
+
+                // Yearly Aggregation
+                const year = row['ปีการศึกษา'];
+                if (!yearlyData[year]) yearlyData[year] = { applicants: 0, passed: 0 };
+                yearlyData[year].applicants += applicants;
+                yearlyData[year].passed += passed;
+
+                // Faculty Aggregation
+                const faculty = row['ชื่อคณะ'];
+                if (!facultyData[faculty]) facultyData[faculty] = { admission: 0, quota: 0 };
+                
+                if (row['ประเภทการสมัคร'] === 'Admission') {
+                    facultyData[faculty].admission += applicants;
+                } else if (row['ประเภทการสมัคร'] === 'Quota') {
+                    facultyData[faculty].quota += applicants;
+                } else {
+                    // Fallback if type is not strictly 'Admission' or 'Quota'
+                    if(!facultyData[faculty].other) facultyData[faculty].other = 0;
+                    facultyData[faculty].other += applicants;
+                }
+            });
+
+            renderKPIs(totalApplicants, totalPassed, totalFailed);
+            renderTrendChart(yearlyData);
+            renderRatioChart(totalPassed, totalFailed);
+            renderFacultyChart(facultyData);
+        }
+
+        function renderKPIs(applicants, passed, failed) {
+            const passRate = ((passed / applicants) * 100).toFixed(1);
+            const container = document.getElementById('kpi-container');
+            
+            const kpis = [
+                { title: 'ผู้สมัครทั้งหมด', value: applicants, unit: 'คน', color: 'indigo' },
+                { title: 'ผู้ผ่านการคัดเลือก', value: passed, unit: 'คน', color: 'emerald' },
+                { title: 'อัตราการสอบผ่าน', value: passRate, unit: '%', color: 'pink' }
+            ];
+
+            let html = '';
+            kpis.forEach(kpi => {
+                const borderColors = {
+                    indigo: 'border-indigo-500',
+                    emerald: 'border-emerald-500',
+                    pink: 'border-pink-500'
+                };
+                
+                const textColors = {
+                    indigo: 'text-indigo-600',
+                    emerald: 'text-emerald-600',
+                    pink: 'text-pink-600'
+                };
+
+                html += `
+                    <div class="glass p-6 rounded-2xl border-b-4 ${borderColors[kpi.color]} transform hover:-translate-y-2 transition duration-300">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-semibold text-gray-500">${kpi.title}</p>
+                            <div class="p-2 rounded-full bg-${kpi.color}-100">
+                                <!-- Icon placeholder -->
+                            </div>
+                        </div>
+                        <h3 class="text-4xl font-extrabold text-slate-800">${kpi.value.toLocaleString()} <span class="text-lg font-medium ${textColors[kpi.color]}">${kpi.unit}</span></h3>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderTrendChart(yearlyData) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = Object.keys(yearlyData).sort();
+            const applicants = labels.map(year => yearlyData[year].applicants);
+            const passed = labels.map(year => yearlyData[year].passed);
+
+            if(charts.trend) charts.trend.destroy();
+            
+            // Gradient for Applicants
+            const gradientApp = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientApp.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); // Indigo
+            gradientApp.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+            // Gradient for Passed
+            const gradientPass = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientPass.addColorStop(0, 'rgba(16, 185, 129, 0.5)'); // Emerald
+            gradientPass.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'ผู้สมัครรวม (คน)',
+                            data: applicants,
+                            borderColor: '#6366f1',
+                            backgroundColor: gradientApp,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#6366f1',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'ผู้ผ่านคัดเลือก (คน)',
+                            data: passed,
+                            borderColor: '#10b981',
+                            backgroundColor: gradientPass,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+                        tooltip: { backgroundColor: 'rgba(255,255,255,0.9)', titleColor: '#1e293b', bodyColor: '#475569', borderColor: '#e2e8f0', borderWidth: 1 }
+                    },
+                    scales: { 
+                        y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderRatioChart(passed, failed) {
+            const ctx = document.getElementById('ratioChart').getContext('2d');
+            if(charts.ratio) charts.ratio.destroy();
+            
+            charts.ratio = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ผู้ผ่าน', 'ผู้ไม่ผ่าน'],
+                    datasets: [{
+                        data: [passed, failed],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat().format(context.parsed) + ' คน';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderFacultyChart(facultyData) {
+            const ctx = document.getElementById('facultyChart').getContext('2d');
+            
+            // Sort faculties by total applicants descending
+            const labels = Object.keys(facultyData).sort((a, b) => {
+                const totalA = (facultyData[a].admission || 0) + (facultyData[a].quota || 0);
+                const totalB = (facultyData[b].admission || 0) + (facultyData[b].quota || 0);
+                return totalB - totalA;
+            });
+
+            const admissionData = labels.map(f => facultyData[f].admission || 0);
+            const quotaData = labels.map(f => facultyData[f].quota || 0);
+
+            if(charts.faculty) charts.faculty.destroy();
+            charts.faculty = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'รอบ Admission',
+                            data: admissionData,
+                            backgroundColor: '#8b5cf6', // Violet
+                            borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 }
+                        },
+                        {
+                            label: 'รอบ Quota',
+                            data: quotaData,
+                            backgroundColor: '#ec4899', // Pink
+                            borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true } },
+                        tooltip: { backgroundColor: 'rgba(255,255,255,0.9)', titleColor: '#1e293b', bodyColor: '#475569', borderColor: '#e2e8f0', borderWidth: 1 }
+                    },
+                    scales: { 
+                        x: { stacked: true, grid: { display: false } },
+                        y: { stacked: true, beginAtZero: true, grid: { borderDash: [5, 5] } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
